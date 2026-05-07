@@ -1,0 +1,634 @@
+
+
+Skip to content
+Using Keyport School District Mail with screen readers
+Trying to connect to Chat...
+If this issue persists, learn more
+1 of 1,894
+(no subject)
+Inbox
+
+Jacob Johnson <jacob.johnson@student.kpsdschools.org>
+1:09 PM (0 minutes ago)
+to me
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Granny's Wiener Escape 3D 🌭</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Fredoka+One&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;overflow:hidden;font-family:'Fredoka One',cursive;}
+#c{display:block;width:100vw;height:100vh;}
+
+#ui{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
+
+#hud{position:absolute;top:16px;left:20px;color:#ffcc44;font-size:1.4rem;text-shadow:0 0 12px #ff8800;}
+#danger{position:absolute;top:16px;right:20px;font-size:1.1rem;color:#ff3344;text-shadow:0 0 10px red;text-align:right;}
+#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,0.3);font-size:1rem;line-height:1;}
+
+.overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+background:radial-gradient(ellipse at center,#150008 0%,#000 100%);z-index:50;pointer-events:all;}
+.hidden{display:none!important;}
+
+.title{font-family:'Creepster',cursive;font-size:clamp(2.5rem,9vw,5.5rem);color:#ff2244;
+text-shadow:0 0 30px #ff003388,0 0 80px #ff003344;animation:flicker 3s infinite;text-align:center;line-height:1.05;}
+.sub{color:#ffcc44;font-size:1.1rem;margin:6px 0 24px;text-shadow:0 0 8px #ff8800;}
+.dog-icon{font-size:5rem;animation:bounce 1s ease-in-out infinite alternate;margin-bottom:12px;}
+.inst{color:#bbb;font-size:1rem;text-align:center;line-height:2;margin-bottom:28px;}
+.inst b{color:#ffcc44;}
+.btn{background:linear-gradient(135deg,#cc1133,#880022);color:#fff;border:none;
+padding:14px 44px;font-family:'Creepster',cursive;font-size:2rem;border-radius:50px;
+cursor:pointer;box-shadow:0 0 30px #ff224466;transition:all .2s;letter-spacing:2px;pointer-events:all;}
+.btn:hover{transform:scale(1.07);box-shadow:0 0 60px #ff2244aa;}
+.btn.green{background:linear-gradient(135deg,#22aa44,#116622);box-shadow:0 0 30px #44ff8844;}
+.btn.green:hover{box-shadow:0 0 60px #44ff88aa;}
+
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:5;
+background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,0.75) 100%);}
+#bloodFlash{position:fixed;inset:0;pointer-events:none;z-index:6;background:rgba(255,0,30,0);transition:background .05s;}
+
+#minimap{position:absolute;bottom:16px;right:16px;opacity:0.7;}
+
+@keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:.5;}95%{opacity:1;}97%{opacity:.3;}99%{opacity:1;}}
+@keyframes bounce{from{transform:translateY(0) rotate(-5deg);}to{transform:translateY(-14px) rotate(5deg);}}
+
+/* mobile */
+#mpad{position:fixed;bottom:24px;left:24px;display:none;z-index:20;pointer-events:all;}
+.dpad{display:grid;grid-template-columns:52px 52px 52px;grid-template-rows:52px 52px;gap:6px;}
+.dpad button{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.25);
+border-radius:12px;color:#fff;font-size:1.4rem;cursor:pointer;
+-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+@media(max-width:768px){#mpad{display:block;}}
+
+#winmsg,#losemsg{font-family:'Creepster',cursive;font-size:clamp(1.8rem,7vw,4rem);margin-bottom:10px;text-align:center;}
+#winscore,#losescore{color:#ffcc44;font-size:1.2rem;margin-bottom:24px;text-align:center;}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div id="vignette"></div>
+<div id="bloodFlash"></div>
+
+<div id="ui">
+<div id="hud">🦴 <span id="boneCount">0</span> / <span id="boneTotal">0</span> &nbsp; <span id="doorHint" style="color:#44ff88;display:none">— 🚪 Find the door!</span></div>
+<div id="danger"></div>
+<div id="crosshair">·</div>
+</div>
+
+<!-- START -->
+<div class="overlay" id="startScreen">
+<div class="dog-icon">🌭</div>
+<div class="title">Granny's<br>Wiener Escape</div>
+<div class="sub">🦴 Loxnezzz Games — 3D Edition 🦴</div>
+<div class="inst">
+You are a <b>dachshund</b> trapped in Granny's haunted house!<br>
+Collect all <b>🦴 bones</b> then find the <b>🚪 door</b> to escape!<br>
+Avoid <b style="color:#ff4455">👵 GRANNY</b> — she will catch you!<br><br>
+<b>WASD</b> = Move &nbsp;|&nbsp; <b>Mouse</b> = Look around<br>
+<b>Click</b> to lock your mouse for best experience
+</div>
+<button class="btn" onclick="startGame()">🌭 START RUNNING! 🌭</button>
+</div>
+
+<!-- GAME OVER -->
+<div class="overlay hidden" id="loseScreen">
+<div class="dog-icon" style="filter:grayscale(1) brightness(.5)">🧶</div>
+<div id="losemsg" style="color:#ff2244">CAUGHT BY GRANNY!</div>
+<div id="losescore"></div>
+<button class="btn" onclick="startGame()">🔁 Try Again</button>
+</div>
+
+<!-- WIN -->
+<div class="overlay hidden" id="winScreen">
+<div class="dog-icon">🐕</div>
+<div id="winmsg" style="color:#44ff88">YOU ESCAPED!</div>
+<div id="winscore"></div>
+<button class="btn green" onclick="startGame()">🏆 Play Again</button>
+</div>
+
+<!-- Mobile Dpad -->
+<div id="mpad">
+<div class="dpad">
+<div></div>
+<button id="mu">▲</button>
+<div></div>
+<button id="ml">◀</button>
+<button id="md">▼</button>
+<button id="mr">▶</button>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ===================== THREE.JS SETUP =====================
+const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x000000);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a0005, 0.12);
+
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 100);
+
+function onResize(){
+renderer.setSize(innerWidth, innerHeight);
+camera.aspect = innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', onResize);
+onResize();
+
+// ===================== GAME CONSTANTS =====================
+const CELL = 3; // world units per grid cell
+const MAP_W = 15;
+const MAP_H = 15;
+
+// ===================== STATE =====================
+let gameActive = false;
+let bonesCollected = 0;
+let totalBones = 0;
+let playerWon = false;
+let doorOpen = false;
+let clock = new THREE.Clock();
+
+// ===================== INPUT =====================
+const keys = {};
+const mob = {w:false,s:false,a:false,d:false};
+document.addEventListener('keydown', e=>keys[e.code]=true);
+document.addEventListener('keyup', e=>keys[e.code]=false);
+
+// Mobile
+['mu','md','ml','mr'].forEach((id,i)=>{
+const dirs=['w','s','a','d'];
+const el=document.getElementById(id);
+if(!el)return;
+el.addEventListener('touchstart',e=>{e.preventDefault();mob[dirs[i]]=true;});
+el.addEventListener('touchend', e=>{e.preventDefault();mob[dirs[i]]=false;});
+el.addEventListener('mousedown', ()=>mob[dirs[i]]=true);
+el.addEventListener('mouseup', ()=>mob[dirs[i]]=false);
+});
+
+// Mouse look (pointer lock)
+let yaw=0, pitch=0;
+document.addEventListener('click', ()=>{ if(gameActive) document.getElementById('c').requestPointerLock(); });
+document.addEventListener('mousemove', e=>{
+if(document.pointerLockElement===document.getElementById('c')){
+yaw -= e.movementX * 0.002;
+pitch -= e.movementY * 0.002;
+pitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, pitch));
+}
+});
+
+// ===================== MATERIALS =====================
+const matFloor = new THREE.MeshLambertMaterial({color:0x2a1520});
+const matWall = new THREE.MeshLambertMaterial({color:0x3d1e2e});
+const matCeil = new THREE.MeshLambertMaterial({color:0x1a0e18});
+const matFurn = new THREE.MeshLambertMaterial({color:0x5a2a3a});
+const matBone = new THREE.MeshLambertMaterial({color:0xf0e0c0,emissive:0xffcc44,emissiveIntensity:0.4});
+const matDoor = new THREE.MeshLambertMaterial({color:0x553322});
+const matDoorOpen = new THREE.MeshLambertMaterial({color:0x22aa44,emissive:0x44ff88,emissiveIntensity:0.5});
+const matGranny= new THREE.MeshLambertMaterial({color:0x5a3060});
+const matGrannyHead=new THREE.MeshLambertMaterial({color:0xe8c9a0});
+const matGrannyHair=new THREE.MeshLambertMaterial({color:0xaaaaaa});
+const matEyeRed=new THREE.MeshLambertMaterial({color:0xff0000,emissive:0xff2200,emissiveIntensity:1.5});
+const matDog = new THREE.MeshLambertMaterial({color:0xc8753a});
+const matDogDark=new THREE.MeshLambertMaterial({color:0x8b4513});
+const matNose = new THREE.MeshLambertMaterial({color:0x111111});
+
+// ===================== GEOMETRY HELPERS =====================
+function box(w,h,d){ return new THREE.BoxGeometry(w,h,d); }
+function sphere(r,s=8){ return new THREE.SphereGeometry(r,s,s); }
+function cyl(rt,rb,h,s=8){ return new THREE.CylinderGeometry(rt,rb,h,s); }
+function makeMesh(geo,mat,rx=0,ry=0,rz=0){
+const m=new THREE.Mesh(geo,mat);
+m.rotation.set(rx,ry,rz);
+m.castShadow=true; m.receiveShadow=true;
+return m;
+}
+
+// ===================== MAP =====================
+// 0=floor, 1=wall, 2=start(player), 3=granny start
+let grid=[], wallMeshes=[], boneMeshes=[], doorMesh=null, granny3d=null;
+let grannyPos = new THREE.Vector3();
+let grannyTarget = new THREE.Vector3();
+let grannyPathTimer = 0;
+let grannySpeed = 2.2;
+let grannyEyeMeshes = [];
+let playerPos = new THREE.Vector3();
+const playerHeight = 0.6;
+
+function clearScene(){
+// remove everything except camera
+const toRemove=[];
+scene.traverse(o=>{if(o!==scene&&o.type!=='AmbientLight'&&o.type!=='DirectionalLight'&&o.type!=='SpotLight')toRemove.push(o);});
+toRemove.forEach(o=>scene.remove(o));
+wallMeshes=[]; boneMeshes=[]; grannyEyeMeshes=[];
+}
+
+function buildMap(){
+clearScene();
+
+// Generate grid
+grid=[];
+for(let r=0;r<MAP_H;r++){
+grid[r]=[];
+for(let c=0;c<MAP_W;c++){
+const edge=r===0||r===MAP_H-1||c===0||c===MAP_W-1;
+grid[r][c]=edge?1:0;
+}
+}
+
+// Random interior walls (furniture blocks)
+for(let i=0;i<28;i++){
+const r=2+Math.floor(Math.random()*(MAP_H-4));
+const c=2+Math.floor(Math.random()*(MAP_W-4));
+const w=1+Math.floor(Math.random()*2);
+const h=1+Math.floor(Math.random()*2);
+for(let dr=0;dr<h;dr++) for(let dc=0;dc<w;dc++){
+if(r+dr<MAP_H-1&&c+dc<MAP_W-1) grid[r+dr][c+dc]=1;
+}
+}
+
+const free=[];
+for(let r=0;r<MAP_H;r++) for(let c=0;c<MAP_W;c++) if(grid[r][c]===0) free.push({r,c});
+const shuffle=arr=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
+shuffle(free);
+
+// Place player far from granny
+const pCell=free[0];
+let gCell=free.find(f=>Math.abs(f.r-pCell.r)+Math.abs(f.c-pCell.c)>8)||free[free.length-1];
+
+playerPos.set(pCell.c*CELL, playerHeight, pCell.r*CELL);
+camera.position.copy(playerPos);
+
+grannyPos.set(gCell.c*CELL, 0, gCell.r*CELL);
+grannyTarget.copy(grannyPos);
+
+// Bones
+totalBones = 5;
+bonesCollected = 0;
+doorOpen = false;
+boneMeshes = [];
+const boneSpots = free.filter(f=>(f.r!==pCell.r||f.c!==pCell.c)&&(f.r!==gCell.r||f.c!==gCell.c)).slice(2, 2+totalBones);
+
+// Door
+const doorCell = free[free.length-3];
+
+// ---- BUILD GEOMETRY ----
+const halfW=MAP_W*CELL/2, halfH=MAP_H*CELL/2;
+
+// Floor
+const floorGeo = new THREE.PlaneGeometry(MAP_W*CELL, MAP_H*CELL);
+const floor = new THREE.Mesh(floorGeo, matFloor);
+floor.rotation.x=-Math.PI/2; floor.position.set(halfW-CELL/2, 0, halfH-CELL/2);
+floor.receiveShadow=true;
+scene.add(floor);
+
+// Ceiling
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(MAP_W*CELL,MAP_H*CELL), matCeil);
+ceil.rotation.x=Math.PI/2; ceil.position.set(halfW-CELL/2, 2.4, halfH-CELL/2);
+scene.add(ceil);
+
+// Walls
+for(let r=0;r<MAP_H;r++) for(let c=0;c<MAP_W;c++){
+if(grid[r][c]!==1) continue;
+const isEdge=r===0||r===MAP_H-1||c===0||c===MAP_W-1;
+const mat=isEdge?matWall:matFurn;
+const h=isEdge?2.4:1.8;
+const wm=new THREE.Mesh(box(CELL,h,CELL), mat);
+wm.position.set(c*CELL, h/2, r*CELL);
+wm.castShadow=true; wm.receiveShadow=true;
+scene.add(wm);
+wallMeshes.push({mesh:wm, c, r, h});
+}
+
+// Door
+{
+const dm=new THREE.Mesh(box(CELL,2.2,0.2), matDoor);
+dm.position.set(doorCell.c*CELL, 1.1, doorCell.r*CELL);
+dm.castShadow=true;
+scene.add(dm);
+doorMesh={mesh:dm, c:doorCell.c, r:doorCell.r};
+}
+
+// Bones
+boneSpots.forEach(spot=>{
+const g=new THREE.Group();
+// shaft
+const shaft=new THREE.Mesh(cyl(0.06,0.06,0.5,8), matBone);
+shaft.rotation.z=Math.PI/2;
+g.add(shaft);
+// knobs
+[-0.25,0.25].forEach(x=>{
+const k=new THREE.Mesh(sphere(0.1,6), matBone);
+k.position.set(x,0,0);
+g.add(k);
+});
+g.position.set(spot.c*CELL, 0.5, spot.r*CELL);
+const light=new THREE.PointLight(0xffcc44,0.8,2);
+light.position.set(0,0.3,0);
+g.add(light);
+scene.add(g);
+boneMeshes.push({group:g, c:spot.c, r:spot.r, collected:false});
+});
+
+// Granny 3D model
+granny3d = buildGranny();
+granny3d.position.copy(grannyPos);
+scene.add(granny3d);
+
+// Dog body (first-person — just shadow on floor, no body visible to self)
+// Lights
+scene.add(new THREE.AmbientLight(0x200015, 0.6));
+
+// Granny spotlight (red, scary)
+const grannyLight = new THREE.PointLight(0xff0000, 1.5, 6);
+grannyLight.position.set(0, 2, 0);
+granny3d.add(grannyLight);
+
+// Player flashlight
+const flashlight = new THREE.SpotLight(0xffeedd, 1.2, 12, Math.PI/6, 0.5);
+flashlight.target.position.set(0,0,-5);
+camera.add(flashlight);
+camera.add(flashlight.target);
+scene.add(camera);
+
+document.getElementById('boneCount').textContent=0;
+document.getElementById('boneTotal').textContent=totalBones;
+document.getElementById('doorHint').style.display='none';
+}
+
+function buildGranny(){
+const g=new THREE.Group();
+
+// Body
+const bodyGeo=new THREE.CylinderGeometry(0.35,0.45,1.1,10);
+const body=new THREE.Mesh(bodyGeo,matGranny);
+body.position.y=0.55;
+g.add(body);
+
+// Head
+const head=new THREE.Mesh(sphere(0.3,10),matGrannyHead);
+head.position.y=1.4;
+g.add(head);
+
+// Hair bun
+const hair=new THREE.Mesh(sphere(0.25,8),matGrannyHair);
+hair.position.y=1.68;
+g.add(hair);
+const bun=new THREE.Mesh(sphere(0.15,8),matGrannyHair);
+bun.position.set(0,1.82,0);
+g.add(bun);
+
+// Evil eyes (glowing red)
+[-0.12,0.12].forEach(x=>{
+const eye=new THREE.Mesh(sphere(0.06,8),matEyeRed);
+eye.position.set(x,1.42,0.26);
+g.add(eye);
+grannyEyeMeshes.push(eye);
+const pupil=new THREE.Mesh(sphere(0.03,6),matNose);
+pupil.position.set(x,1.42,0.32);
+g.add(pupil);
+});
+
+// Nose
+const nose=new THREE.Mesh(sphere(0.045,6),matDogDark);
+nose.position.set(0,1.34,0.3);
+g.add(nose);
+
+// Arms
+[-1,1].forEach(side=>{
+const arm=new THREE.Mesh(cyl(0.07,0.07,0.65,6),matGranny);
+arm.rotation.z=side*0.5;
+arm.position.set(side*0.48,0.85,0);
+g.add(arm);
+// Knitting needle
+const needle=new THREE.Mesh(cyl(0.02,0.02,0.8,4),new THREE.MeshLambertMaterial({color:0xffcc44,emissive:0xffaa00,emissiveIntensity:0.6}));
+needle.rotation.z=side*(-0.8);
+needle.position.set(side*0.7,1.05,0);
+g.add(needle);
+});
+
+// Legs
+[-0.15,0.15].forEach(x=>{
+const leg=new THREE.Mesh(cyl(0.1,0.1,0.5,6),matGranny);
+leg.position.set(x,-0.05,0);
+g.add(leg);
+});
+
+g.castShadow=true;
+return g;
+}
+
+// ===================== PATHFINDING (BFS grid) =====================
+function bfsPath(fromC,fromR,toC,toR){
+const key=(c,r)=>`${c},${r}`;
+const visited=new Set([key(fromC,fromR)]);
+const queue=[{c:fromC,r:fromR,path:[]}];
+const dirs=[{c:1,r:0},{c:-1,r:0},{c:0,r:1},{c:0,r:-1}];
+while(queue.length){
+const cur=queue.shift();
+if(cur.c===toC&&cur.r===toR) return cur.path;
+for(const d of dirs){
+const nc=cur.c+d.c,nr=cur.r+d.r;
+if(nc<0||nr<0||nc>=MAP_W||nr>=MAP_H) continue;
+const k=key(nc,nr);
+if(!visited.has(k)&&grid[nr]&&grid[nr][nc]===0){
+visited.add(k);
+queue.push({c:nc,r:nr,path:[...cur.path,{c:nc,r:nr}]});
+}
+}
+}
+return [];
+}
+
+let grannyPath=[];
+let grannyNextCell=null;
+let blinkTimer=1.5;
+let eyeOpen=true;
+
+// ===================== COLLISION =====================
+function collidesWall(x,z,radius=0.4){
+// check nearby grid cells
+const c=Math.round(x/CELL), r=Math.round(z/CELL);
+for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++){
+const nc=c+dc, nr=r+dr;
+if(nc<0||nr<0||nc>=MAP_W||nr>=MAP_H) continue;
+if(grid[nr]&&grid[nr][nc]===1){
+const wx=nc*CELL, wz=nr*CELL;
+const hw=CELL/2+radius, hd=CELL/2+radius;
+if(Math.abs(x-wx)<hw&&Math.abs(z-wz)<hd) return true;
+}
+}
+return false;
+}
+
+// ===================== MAIN LOOP =====================
+let flashIntensity=0;
+let animId=null;
+
+function startGame(){
+['startScreen','loseScreen','winScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+gameActive=true; playerWon=false;
+yaw=0; pitch=0;
+buildMap();
+clock.start();
+if(animId) cancelAnimationFrame(animId);
+tick();
+}
+
+function tick(){
+if(!gameActive){animId=null;return;}
+animId=requestAnimationFrame(tick);
+const dt=Math.min(clock.getDelta(),0.05);
+update(dt);
+renderer.render(scene,camera);
+}
+
+function update(dt){
+// ---- Player movement ----
+const moveSpeed=4.5;
+const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+let move=new THREE.Vector3();
+
+if(keys['KeyW']||keys['ArrowUp']||mob.w) move.add(forward);
+if(keys['KeyS']||keys['ArrowDown']||mob.s) move.sub(forward);
+if(keys['KeyA']||keys['ArrowLeft']||mob.a) move.sub(right);
+if(keys['KeyD']||keys['ArrowRight']||mob.d) move.add(right);
+
+if(move.lengthSq()>0){
+move.normalize().multiplyScalar(moveSpeed*dt);
+const nx=playerPos.x+move.x;
+const nz=playerPos.z+move.z;
+if(!collidesWall(nx,playerPos.z)) playerPos.x=nx;
+if(!collidesWall(playerPos.x,nz)) playerPos.z=nz;
+}
+
+// clamp to map
+playerPos.x=Math.max(0.5,Math.min((MAP_W-1)*CELL-0.5,playerPos.x));
+playerPos.z=Math.max(0.5,Math.min((MAP_H-1)*CELL-0.5,playerPos.z));
+
+camera.position.set(playerPos.x, playerHeight, playerPos.z);
+camera.rotation.order='YXZ';
+camera.rotation.y=yaw;
+camera.rotation.x=pitch;
+
+// ---- Granny AI ----
+const pGridC=Math.round(playerPos.x/CELL);
+const pGridR=Math.round(playerPos.z/CELL);
+const gGridC=Math.round(grannyPos.x/CELL);
+const gGridR=Math.round(grannyPos.z/CELL);
+
+grannyPathTimer-=dt;
+if(grannyPathTimer<=0){
+grannyPathTimer=0.6;
+grannyPath=bfsPath(gGridC,gGridR,pGridC,pGridR);
+}
+
+// Move granny along path
+const dist3d=grannyPos.distanceTo(playerPos);
+const speed=dist3d<6?grannySpeed*1.6:grannySpeed;
+
+if(grannyNextCell===null||grannyPos.distanceTo(new THREE.Vector3(grannyNextCell.c*CELL,0,grannyNextCell.r*CELL))<0.15){
+if(grannyPath.length>0){
+grannyNextCell=grannyPath.shift();
+}
+}
+
+if(grannyNextCell){
+const target=new THREE.Vector3(grannyNextCell.c*CELL,0,grannyNextCell.r*CELL);
+const toTarget=target.clone().sub(grannyPos);
+if(toTarget.length()>0.05){
+toTarget.normalize().multiplyScalar(speed*dt);
+grannyPos.add(toTarget);
+}
+// Face toward player
+const angle=Math.atan2(playerPos.x-grannyPos.x,playerPos.z-grannyPos.z);
+granny3d.rotation.y=angle;
+}
+granny3d.position.set(grannyPos.x,0,grannyPos.z);
+
+// Granny blink
+blinkTimer-=dt;
+if(blinkTimer<=0){
+eyeOpen=!eyeOpen;
+blinkTimer=eyeOpen?(1.5+Math.random()*2):0.12;
+const intensity=eyeOpen?1.5:0;
+grannyEyeMeshes.forEach(e=>{e.material.emissiveIntensity=intensity;});
+}
+
+// ---- Bones ----
+boneMeshes.forEach(b=>{
+if(b.collected) return;
+b.group.rotation.y+=dt*2;
+b.group.position.y=0.5+Math.sin(Date.now()*0.003+b.c)*0.12;
+const d=Math.sqrt((playerPos.x-b.group.position.x)**2+(playerPos.z-b.group.position.z)**2);
+if(d<1.0){
+b.collected=true;
+scene.remove(b.group);
+bonesCollected++;
+document.getElementById('boneCount').textContent=bonesCollected;
+if(bonesCollected>=totalBones){
+doorOpen=true;
+doorMesh.mesh.material=matDoorOpen;
+// Green door light
+const dl=new THREE.PointLight(0x44ff88,2,4);
+dl.position.set(doorMesh.c*CELL,1,doorMesh.r*CELL);
+scene.add(dl);
+document.getElementById('doorHint').style.display='inline';
+}
+}
+});
+
+// ---- Door check ----
+if(doorOpen&&doorMesh){
+const dd=Math.sqrt((playerPos.x-doorMesh.c*CELL)**2+(playerPos.z-doorMesh.r*CELL)**2);
+if(dd<1.2){
+endGame(true);
+return;
+}
+}
+
+// ---- Caught check ----
+if(dist3d<1.0){
+endGame(false);
+return;
+}
+
+// ---- Blood flash HUD ----
+const flashTarget=dist3d<3?0.25:dist3d<6?0.1:0;
+flashIntensity+=(flashTarget-flashIntensity)*0.15;
+document.getElementById('bloodFlash').style.background=`rgba(255,0,30,${flashIntensity})`;
+
+// ---- Danger text ----
+const dangerEl=document.getElementById('danger');
+if(dist3d<2.5) dangerEl.textContent='⚠️ GRANNY IS RIGHT BEHIND YOU!!!';
+else if(dist3d<5) dangerEl.textContent='😱 She\'s getting closer...';
+else if(dist3d<8) dangerEl.textContent='👀 Granny is hunting you...';
+else dangerEl.textContent='';
+}
+
+function endGame(won){
+gameActive=false;
+document.exitPointerLock&&document.exitPointerLock();
+setTimeout(()=>{
+if(won){
+document.getElementById('winScreen').classList.remove('hidden');
+document.getElementById('winscore').textContent=`You collected all ${totalBones} bones and escaped! 🏆`;
+} else {
+document.getElementById('loseScreen').classList.remove('hidden');
+document.getElementById('losescore').textContent=`You collected ${bonesCollected} / ${totalBones} bones 🦴`;
+}
+},400);
+}
+</script>
+</body>
+</html>
